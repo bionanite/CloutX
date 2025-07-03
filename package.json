@@ -1,0 +1,45 @@
+{
+  "name": "cloutx-token-ecosystem",
+  "version": "1.0.0",
+  "description": "CloutX (CLX) - Viral Deflationary Social-Fi Token Ecosystem with Proof of Virality",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:polygon": "hardhat run scripts/deploy.js --network polygon",
+    "deploy:base": "hardhat run scripts/deploy.js --network base",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "verify:polygon": "hardhat verify --network polygon",
+    "verify:base": "hardhat verify --network base",
+    "coverage": "hardhat coverage"
+  },
+  "keywords": [
+    "defi",
+    "social-fi",
+    "token",
+    "staking",
+    "governance",
+    "oracle",
+    "viral",
+    "cloutx"
+  ],
+  "author": "CloutX Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "^2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@openzeppelin/hardhat-upgrades": "^1.28.0",
+    "chai": "^4.3.7",
+    "ethereum-waffle": "^3.4.4",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.19.1",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.5"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.8.0",
+    "@openzeppelin/contracts": "^4.9.3",
+    "@openzeppelin/contracts-upgradeable": "^4.9.3"
+  }
+}

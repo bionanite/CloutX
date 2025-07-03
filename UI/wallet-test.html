@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloutX Token Wallet Test</title>
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .wallet-section {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: #718096;
+        }
+        
+        .btn-success {
+            background: #48bb78;
+        }
+        
+        .btn-warning {
+            background: #ed8936;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+        
+        .status.info {
+            background: #bee3f8;
+            color: #2a4365;
+            border: 1px solid #63b3ed;
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .balance-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .balance-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .transaction-log {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .network-info {
+            background: #2d3748;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .accounts-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        
+        .account-item {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .account-item:hover {
+            background: #f7fafc;
+        }
+        
+        .account-item.active {
+            background: #e6fffa;
+            border-left: 4px solid #38a169;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 CloutX Token Wallet Test</h1>
+            <p>Test your CloutX (CLX) tokens with real blockchain interactions</p>
+        </div>
+        
+        <div class="content">
+            <!-- Network Status -->
+            <div class="network-info">
+                <strong>🌐 Network:</strong> <span id="networkName">Not Connected</span> |
+                <strong>⛓️ Chain ID:</strong> <span id="chainId">-</span> |
+                <strong>📍 Block:</strong> <span id="blockNumber">-</span>
+            </div>
+            
+            <!-- Wallet Connection -->
+            <div class="wallet-section">
+                <h2 class="section-title">👛 Wallet Connection</h2>
+                <button id="connectWallet" class="btn">Connect MetaMask</button>
+                <button id="disconnectWallet" class="btn btn-secondary hidden">Disconnect</button>
+                <div id="connectionStatus" class="status hidden"></div>
+                
+                <div id="accountsSection" class="hidden">
+                    <h3>Available Accounts:</h3>
+                    <div id="accountsList" class="accounts-list"></div>
+                </div>
+            </div>
+            
+            <!-- Token Information -->
+            <div class="wallet-section">
+                <h2 class="section-title">🪙 CloutX Token Info</h2>
+                <div class="grid">
+                    <div class="balance-card">
+                        <div class="balance-value" id="clxBalance">0</div>
+                        <div class="balance-label">CLX Balance</div>
+                    </div>
+                    <div class="balance-card" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);">
+                        <div class="balance-value" id="ethBalance">0</div>
+                        <div class="balance-label">ETH Balance</div>
+                    </div>
+                    <div class="balance-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="balance-value" id="totalSupply">0</div>
+                        <div class="balance-label">Total Supply</div>
+                    </div>
+                    <div class="balance-card" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);">
+                        <div class="balance-value" id="burnedTokens">0</div>
+                        <div class="balance-label">Burned Tokens</div>
+                    </div>
+                </div>
+                <button id="refreshBalances" class="btn">🔄 Refresh Balances</button>
+            </div>
+            
+            <!-- Token Transfer -->
+            <div class="wallet-section">
+                <h2 class="section-title">💸 Transfer CLX Tokens</h2>
+                <div class="input-group">
+                    <label for="transferTo">To Address:</label>
+                    <input type="text" id="transferTo" placeholder="0x..." />
+                </div>
+                <div class="input-group">
+                    <label for="transferAmount">Amount (CLX):</label>
+                    <input type="number" id="transferAmount" placeholder="100" step="0.01" />
+                </div>
+                <button id="transferTokens" class="btn">Send CLX</button>
+                <button id="fillTestAddress" class="btn btn-secondary">Fill Test Address</button>
+            </div>
+            
+            <!-- Social Mining -->
+            <div class="wallet-section">
+                <h2 class="section-title">📱 Social Mining</h2>
+                <div class="grid">
+                    <div>
+                        <h3>Add Social Profile</h3>
+                        <div class="input-group">
+                            <label for="platform">Platform:</label>
+                            <select id="platform">
+                                <option value="0">TikTok</option>
+                                <option value="1">X (Twitter)</option>
+                                <option value="2">Threads</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="username">Username:</label>
+                            <input type="text" id="username" placeholder="@yourhandle" />
+                        </div>
+                        <button id="addSocialProfile" class="btn">Connect Account</button>
+                    </div>
+                    <div>
+                        <h3>Claim Rewards</h3>
+                        <div class="balance-card" style="background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);">
+                            <div class="balance-value" id="pendingRewards">0</div>
+                            <div class="balance-label">Pending CLX Rewards</div>
+                        </div>
+                        <button id="claimRewards" class="btn btn-success">🎁 Claim Rewards</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Staking -->
+            <div class="wallet-section">
+                <h2 class="section-title">🏦 Staking</h2>
+                <div class="grid">
+                    <div>
+                        <h3>Stake Tokens</h3>
+                        <div class="input-group">
+                            <label for="stakeAmount">Amount (CLX):</label>
+                            <input type="number" id="stakeAmount" placeholder="1000" step="0.01" />
+                        </div>
+                        <div class="input-group">
+                            <label for="stakeTier">Staking Tier:</label>
+                            <select id="stakeTier">
+                                <option value="0">30 Days (5% APY)</option>
+                                <option value="1">60 Days (8% APY)</option>
+                                <option value="2">90 Days (12% APY)</option>
+                                <option value="3">180 Days (18% APY)</option>
+                            </select>
+                        </div>
+                        <button id="stakeTokens" class="btn">🔒 Stake CLX</button>
+                    </div>
+                    <div>
+                        <h3>Your Stakes</h3>
+                        <div class="balance-card" style="background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);">
+                            <div class="balance-value" id="stakedAmount">0</div>
+                            <div class="balance-label">Staked CLX</div>
+                        </div>
+                        <button id="unstakeTokens" class="btn btn-warning">🔓 Unstake</button>
+                        <button id="refreshStaking" class="btn btn-secondary">🔄 Refresh</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Governance -->
+            <div class="wallet-section">
+                <h2 class="section-title">🗳️ Governance</h2>
+                <div class="grid">
+                    <div>
+                        <h3>Create Proposal</h3>
+                        <div class="input-group">
+                            <label for="proposalTitle">Title:</label>
+                            <input type="text" id="proposalTitle" placeholder="Proposal title" />
+                        </div>
+                        <div class="input-group">
+                            <label for="proposalDescription">Description:</label>
+                            <input type="text" id="proposalDescription" placeholder="Proposal description" />
+                        </div>
+                        <button id="createProposal" class="btn">📝 Create Proposal</button>
+                    </div>
+                    <div>
+                        <h3>Voting Power</h3>
+                        <div class="balance-card" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);">
+                            <div class="balance-value" id="votingPower">0</div>
+                            <div class="balance-label">Voting Power</div>
+                        </div>
+                        <button id="refreshGovernance" class="btn btn-secondary">🔄 Refresh</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transaction Log -->
+            <div class="wallet-section">
+                <h2 class="section-title">📜 Transaction Log</h2>
+                <button id="clearLog" class="btn btn-secondary">Clear Log</button>
+                <div id="transactionLog" class="transaction-log">
+                    Welcome to CloutX Token Testing!
+                    Connect your wallet to begin testing...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Contract addresses from deployment
+        const CONTRACTS = {
+            clxToken: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512',
+            stakingPool: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+            rewardOracle: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+            governanceDAO: '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853'
+        };
+        
+        // Contract ABIs (simplified for testing)
+        const CLX_ABI = [
+            "function name() view returns (string)",
+            "function symbol() view returns (string)",
+            "function decimals() view returns (uint8)",
+            "function totalSupply() view returns (uint256)",
+            "function balanceOf(address) view returns (uint256)",
+            "function transfer(address to, uint256 amount) returns (bool)",
+            "function burnedSupply() view returns (uint256)",
+            "event Transfer(address indexed from, address indexed to, uint256 value)"
+        ];
+        
+        const STAKING_ABI = [
+            "function stake(uint256 amount, uint256 tierId) returns (bool)",
+            "function unstake() returns (bool)",
+            "function getStakeInfo(address user) view returns (uint256 amount, uint256 tier, uint256 startTime, uint256 rewards)",
+            "function calculateRewards(address user) view returns (uint256)"
+        ];
+        
+        const REWARD_ABI = [
+            "function addSocialProfile(uint8 platform, string username) returns (bool)",
+            "function claimRewards() returns (uint256)",
+            "function getPendingRewards(address user) view returns (uint256)",
+            "function getUserCloutScore(address user) view returns (uint256)"
+        ];
+        
+        const GOVERNANCE_ABI = [
+            "function createProposal(string title, string description) returns (uint256)",
+            "function getVotingPower(address user) view returns (uint256)",
+            "function proposalCount() view returns (uint256)"
+        ];
+        
+        // Global variables
+        let provider, signer, clxContract, stakingContract, rewardContract, governanceContract;
+        let currentAccount = null;
+        
+        // Utility functions
+        function log(message) {
+            const logElement = document.getElementById('transactionLog');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.innerHTML += `\n[${timestamp}] ${message}`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function showStatus(message, type = 'info') {
+            const statusElement = document.getElementById('connectionStatus');
+            statusElement.className = `status ${type}`;
+            statusElement.textContent = message;
+            statusElement.classList.remove('hidden');
+            setTimeout(() => statusElement.classList.add('hidden'), 5000);
+        }
+        
+        function formatCLX(amount) {
+            return ethers.utils.formatEther(amount);
+        }
+        
+        function parseCLX(amount) {
+            return ethers.utils.parseEther(amount.toString());
+        }
+        
+        // Wallet connection
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('MetaMask not found. Please install MetaMask.');
+                }
+                
+                log('Connecting to MetaMask...');
+                
+                // Request account access
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                // Create provider and signer
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                
+                // Get current account
+                currentAccount = await signer.getAddress();
+                
+                // Initialize contracts
+                clxContract = new ethers.Contract(CONTRACTS.clxToken, CLX_ABI, signer);
+                stakingContract = new ethers.Contract(CONTRACTS.stakingPool, STAKING_ABI, signer);
+                rewardContract = new ethers.Contract(CONTRACTS.rewardOracle, REWARD_ABI, signer);
+                governanceContract = new ethers.Contract(CONTRACTS.governanceDAO, GOVERNANCE_ABI, signer);
+                
+                // Update UI
+                document.getElementById('connectWallet').classList.add('hidden');
+                document.getElementById('disconnectWallet').classList.remove('hidden');
+                document.getElementById('accountsSection').classList.remove('hidden');
+                
+                await updateNetworkInfo();
+                await loadAccounts();
+                await refreshAllData();
+                
+                log(`✅ Connected to ${currentAccount}`);
+                showStatus('Wallet connected successfully!', 'success');
+                
+            } catch (error) {
+                log(`❌ Connection failed: ${error.message}`);
+                showStatus(`Connection failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function disconnectWallet() {
+            provider = null;
+            signer = null;
+            currentAccount = null;
+            
+            document.getElementById('connectWallet').classList.remove('hidden');
+            document.getElementById('disconnectWallet').classList.add('hidden');
+            document.getElementById('accountsSection').classList.add('hidden');
+            
+            log('🔌 Wallet disconnected');
+            showStatus('Wallet disconnected', 'info');
+        }
+        
+        async function updateNetworkInfo() {
+            try {
+                const network = await provider.getNetwork();
+                const blockNumber = await provider.getBlockNumber();
+                
+                document.getElementById('networkName').textContent = network.name || 'localhost';
+                document.getElementById('chainId').textContent = network.chainId;
+                document.getElementById('blockNumber').textContent = blockNumber;
+                
+                // Check if we're on the right network (localhost)
+                if (network.chainId !== 1337) {
+                    showStatus('⚠️ Please switch to localhost network (Chain ID: 1337)', 'warning');
+                }
+                
+            } catch (error) {
+                log(`❌ Failed to get network info: ${error.message}`);
+            }
+        }
+        
+        async function loadAccounts() {
+            try {
+                const accounts = await provider.listAccounts();
+                const accountsList = document.getElementById('accountsList');
+                accountsList.innerHTML = '';
+                
+                for (const account of accounts) {
+                    const accountItem = document.createElement('div');
+                    accountItem.className = 'account-item';
+                    if (account === currentAccount) {
+                        accountItem.classList.add('active');
+                    }
+                    
+                    const balance = await provider.getBalance(account);
+                    accountItem.innerHTML = `
+                        <strong>${account}</strong><br>
+                        <small>ETH: ${ethers.utils.formatEther(balance).substring(0, 8)}</small>
+                    `;
+                    
+                    accountItem.onclick = () => switchAccount(account);
+                    accountsList.appendChild(accountItem);
+                }
+                
+            } catch (error) {
+                log(`❌ Failed to load accounts: ${error.message}`);
+            }
+        }
+        
+        async function switchAccount(account) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_requestPermissions',
+                    params: [{ eth_accounts: {} }]
+                });
+                
+                currentAccount = account;
+                signer = provider.getSigner(account);
+                
+                // Reinitialize contracts with new signer
+                clxContract = new ethers.Contract(CONTRACTS.clxToken, CLX_ABI, signer);
+                stakingContract = new ethers.Contract(CONTRACTS.stakingPool, STAKING_ABI, signer);
+                rewardContract = new ethers.Contract(CONTRACTS.rewardOracle, REWARD_ABI, signer);
+                governanceContract = new ethers.Contract(CONTRACTS.governanceDAO, GOVERNANCE_ABI, signer);
+                
+                await loadAccounts();
+                await refreshAllData();
+                
+                log(`🔄 Switched to account: ${account}`);
+                
+            } catch (error) {
+                log(`❌ Failed to switch account: ${error.message}`);
+            }
+        }
+        
+        async function refreshAllData() {
+            await refreshBalances();
+            await refreshStaking();
+            await refreshGovernance();
+            await refreshRewards();
+        }
+        
+        async function refreshBalances() {
+            if (!clxContract || !currentAccount) return;
+            
+            try {
+                const [clxBalance, ethBalance, totalSupply, burnedTokens] = await Promise.all([
+                    clxContract.balanceOf(currentAccount),
+                    provider.getBalance(currentAccount),
+                    clxContract.totalSupply(),
+                    clxContract.burnedSupply()
+                ]);
+                
+                document.getElementById('clxBalance').textContent = parseFloat(formatCLX(clxBalance)).toFixed(2);
+                document.getElementById('ethBalance').textContent = parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(4);
+                document.getElementById('totalSupply').textContent = parseFloat(formatCLX(totalSupply)).toFixed(0);
+                document.getElementById('burnedTokens').textContent = parseFloat(formatCLX(burnedTokens)).toFixed(2);
+                
+            } catch (error) {
+                log(`❌ Failed to refresh balances: ${error.message}`);
+            }
+        }
+        
+        async function refreshStaking() {
+            if (!stakingContract || !currentAccount) return;
+            
+            try {
+                const stakeInfo = await stakingContract.getStakeInfo(currentAccount);
+                document.getElementById('stakedAmount').textContent = parseFloat(formatCLX(stakeInfo.amount)).toFixed(2);
+                
+            } catch (error) {
+                log(`❌ Failed to refresh staking: ${error.message}`);
+            }
+        }
+        
+        async function refreshGovernance() {
+            if (!governanceContract || !currentAccount) return;
+            
+            try {
+                const votingPower = await governanceContract.getVotingPower(currentAccount);
+                document.getElementById('votingPower').textContent = parseFloat(formatCLX(votingPower)).toFixed(2);
+                
+            } catch (error) {
+                log(`❌ Failed to refresh governance: ${error.message}`);
+            }
+        }
+        
+        async function refreshRewards() {
+            if (!rewardContract || !currentAccount) return;
+            
+            try {
+                const pendingRewards = await rewardContract.getPendingRewards(currentAccount);
+                document.getElementById('pendingRewards').textContent = parseFloat(formatCLX(pendingRewards)).toFixed(2);
+                
+            } catch (error) {
+                log(`❌ Failed to refresh rewards: ${error.message}`);
+            }
+        }
+        
+        // Token operations
+        async function transferTokens() {
+            if (!clxContract) return;
+            
+            const to = document.getElementById('transferTo').value;
+            const amount = document.getElementById('transferAmount').value;
+            
+            if (!to || !amount) {
+                showStatus('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                log(`💸 Transferring ${amount} CLX to ${to}...`);
+                
+                const tx = await clxContract.transfer(to, parseCLX(amount));
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Transfer confirmed in block ${receipt.blockNumber}`);
+                
+                await refreshBalances();
+                showStatus('Transfer successful!', 'success');
+                
+            } catch (error) {
+                log(`❌ Transfer failed: ${error.message}`);
+                showStatus(`Transfer failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function stakeTokens() {
+            if (!stakingContract) return;
+            
+            const amount = document.getElementById('stakeAmount').value;
+            const tier = document.getElementById('stakeTier').value;
+            
+            if (!amount) {
+                showStatus('Please enter stake amount', 'error');
+                return;
+            }
+            
+            try {
+                log(`🔒 Staking ${amount} CLX (Tier ${tier})...`);
+                
+                const tx = await stakingContract.stake(parseCLX(amount), tier);
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Staking confirmed in block ${receipt.blockNumber}`);
+                
+                await refreshAllData();
+                showStatus('Staking successful!', 'success');
+                
+            } catch (error) {
+                log(`❌ Staking failed: ${error.message}`);
+                showStatus(`Staking failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function unstakeTokens() {
+            if (!stakingContract) return;
+            
+            try {
+                log(`🔓 Unstaking tokens...`);
+                
+                const tx = await stakingContract.unstake();
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Unstaking confirmed in block ${receipt.blockNumber}`);
+                
+                await refreshAllData();
+                showStatus('Unstaking successful!', 'success');
+                
+            } catch (error) {
+                log(`❌ Unstaking failed: ${error.message}`);
+                showStatus(`Unstaking failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function addSocialProfile() {
+            if (!rewardContract) return;
+            
+            const platform = document.getElementById('platform').value;
+            const username = document.getElementById('username').value;
+            
+            if (!username) {
+                showStatus('Please enter username', 'error');
+                return;
+            }
+            
+            try {
+                log(`📱 Adding social profile: ${username} on platform ${platform}...`);
+                
+                const tx = await rewardContract.addSocialProfile(platform, username);
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Social profile added in block ${receipt.blockNumber}`);
+                
+                await refreshRewards();
+                showStatus('Social profile added!', 'success');
+                
+            } catch (error) {
+                log(`❌ Failed to add social profile: ${error.message}`);
+                showStatus(`Failed to add social profile: ${error.message}`, 'error');
+            }
+        }
+        
+        async function claimRewards() {
+            if (!rewardContract) return;
+            
+            try {
+                log(`🎁 Claiming rewards...`);
+                
+                const tx = await rewardContract.claimRewards();
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Rewards claimed in block ${receipt.blockNumber}`);
+                
+                await refreshAllData();
+                showStatus('Rewards claimed!', 'success');
+                
+            } catch (error) {
+                log(`❌ Failed to claim rewards: ${error.message}`);
+                showStatus(`Failed to claim rewards: ${error.message}`, 'error');
+            }
+        }
+        
+        async function createProposal() {
+            if (!governanceContract) return;
+            
+            const title = document.getElementById('proposalTitle').value;
+            const description = document.getElementById('proposalDescription').value;
+            
+            if (!title || !description) {
+                showStatus('Please fill in all fields', 'error');
+                return;
+            }
+            
+            try {
+                log(`📝 Creating proposal: ${title}...`);
+                
+                const tx = await governanceContract.createProposal(title, description);
+                log(`📋 Transaction hash: ${tx.hash}`);
+                
+                const receipt = await tx.wait();
+                log(`✅ Proposal created in block ${receipt.blockNumber}`);
+                
+                await refreshGovernance();
+                showStatus('Proposal created!', 'success');
+                
+            } catch (error) {
+                log(`❌ Failed to create proposal: ${error.message}`);
+                showStatus(`Failed to create proposal: ${error.message}`, 'error');
+            }
+        }
+        
+        function fillTestAddress() {
+            // Fill with a test address from Hardhat
+            document.getElementById('transferTo').value = '0x70997970C51812dc3A010C7d01b50e0d17dc79C8';
+        }
+        
+        function clearLog() {
+            document.getElementById('transactionLog').innerHTML = 'Transaction log cleared...';
+        }
+        
+        // Event listeners
+        document.getElementById('connectWallet').onclick = connectWallet;
+        document.getElementById('disconnectWallet').onclick = disconnectWallet;
+        document.getElementById('refreshBalances').onclick = refreshBalances;
+        document.getElementById('transferTokens').onclick = transferTokens;
+        document.getElementById('fillTestAddress').onclick = fillTestAddress;
+        document.getElementById('stakeTokens').onclick = stakeTokens;
+        document.getElementById('unstakeTokens').onclick = unstakeTokens;
+        document.getElementById('refreshStaking').onclick = refreshStaking;
+        document.getElementById('addSocialProfile').onclick = addSocialProfile;
+        document.getElementById('claimRewards').onclick = claimRewards;
+        document.getElementById('createProposal').onclick = createProposal;
+        document.getElementById('refreshGovernance').onclick = refreshGovernance;
+        document.getElementById('clearLog').onclick = clearLog;
+        
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (currentAccount) {
+                refreshAllData();
+            }
+        }, 30000);
+        
+        // Listen for account changes
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    disconnectWallet();
+                } else {
+                    connectWallet();
+                }
+            });
+            
+            window.ethereum.on('chainChanged', () => {
+                window.location.reload();
+            });
+        }
+        
+        log('🚀 CloutX Wallet Test Interface Ready!');
+        log('📋 Contract Addresses:');
+        log(`   CLX Token: ${CONTRACTS.clxToken}`);
+        log(`   Staking Pool: ${CONTRACTS.stakingPool}`);
+        log(`   Reward Oracle: ${CONTRACTS.rewardOracle}`);
+        log(`   Governance DAO: ${CONTRACTS.governanceDAO}`);
+        log('');
+        log('💡 Instructions:');
+        log('1. Make sure MetaMask is connected to localhost:8545');
+        log('2. Import one of the Hardhat test accounts');
+        log('3. Click "Connect MetaMask" to begin testing');
+        log('4. You should have 1B CLX tokens in the deployer account');
+    </script>
+</body>
+</html> 
