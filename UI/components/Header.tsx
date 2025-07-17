@@ -7,7 +7,7 @@ import { addTokenToMetaMask, CLOUTX_TOKEN_METADATA, CONTRACT_ADDRESSES } from '.
 
 interface HeaderProps {
   currentView: View;
-  setCurrentView: (view: View) => void;
+  onViewChange: (view: View) => void;
 }
 
 const NavItem: React.FC<{
@@ -177,7 +177,7 @@ const AddTokenButton: React.FC = () => {
   );
 };
 
-const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
+const Header: React.FC<HeaderProps> = ({ currentView, onViewChange }) => {
   return (
     <header className="bg-clx-dark/90 backdrop-blur-md sticky top-0 z-50 border-b border-clx-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -188,10 +188,10 @@ const Header: React.FC<HeaderProps> = ({ currentView, setCurrentView }) => {
                 <span className="text-xl font-bold gradient-text">CloutX</span>
             </div>
             <nav className="flex space-x-1 sm:space-x-2">
-                <NavItem label={View.DASHBOARD} isActive={currentView === View.DASHBOARD} onClick={() => setCurrentView(View.DASHBOARD)} icon={<LineChart size={18} />} />
-                <NavItem label={View.STAKING} isActive={currentView === View.STAKING} onClick={() => setCurrentView(View.STAKING)} icon={<ShieldCheck size={18} />} />
-                <NavItem label={View.REWARDS} isActive={currentView === View.REWARDS} onClick={() => setCurrentView(View.REWARDS)} icon={<Gift size={18} />} />
-                <NavItem label={View.GOVERNANCE} isActive={currentView === View.GOVERNANCE} onClick={() => setCurrentView(View.GOVERNANCE)} icon={<Landmark size={18} />} />
+                <NavItem label={View.DASHBOARD} isActive={currentView === View.DASHBOARD} onClick={() => onViewChange(View.DASHBOARD)} icon={<LineChart size={18} />} />
+                <NavItem label={View.STAKING} isActive={currentView === View.STAKING} onClick={() => onViewChange(View.STAKING)} icon={<ShieldCheck size={18} />} />
+                <NavItem label={View.REWARDS} isActive={currentView === View.REWARDS} onClick={() => onViewChange(View.REWARDS)} icon={<Gift size={18} />} />
+                <NavItem label={View.GOVERNANCE} isActive={currentView === View.GOVERNANCE} onClick={() => onViewChange(View.GOVERNANCE)} icon={<Landmark size={18} />} />
             </nav>
           </div>
           <div className="flex items-center space-x-3">

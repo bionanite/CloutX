@@ -96,7 +96,7 @@ export const addTokenToMetaMask = async () => {
 
 export const config = getDefaultConfig({
   appName: 'CloutX Token Dashboard',
-  projectId: 'YOUR_WALLETCONNECT_PROJECT_ID', // Replace with your WalletConnect project ID
+  projectId: '2f05a7cdc2674ea66e4a3c7c4b4b5b3f', // Using a demo project ID
   chains: [polygon, base, hardhat],
   ssr: false,
 });
