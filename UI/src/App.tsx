@@ -1,52 +1,33 @@
-import React, { useState } from 'react';
-import { WagmiProvider } from 'wagmi';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import { config } from './config/web3';
-import { Header } from '../components/Header';
-import { Dashboard } from '../components/Dashboard';
-import { Staking } from '../components/Staking';
-import { Governance } from '../components/Governance';
-import { Rewards } from '../components/Rewards';
-
-import '@rainbow-me/rainbowkit/styles.css';
-import './index.css';
-
-const queryClient = new QueryClient();
-
-export type View = 'dashboard' | 'staking' | 'governance' | 'rewards';
+import React from 'react';
 
 function App() {
-  const [currentView, setCurrentView] = useState<View>('dashboard');
-
-  const renderCurrentView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'staking':
-        return <Staking />;
-      case 'governance':
-        return <Governance />;
-      case 'rewards':
-        return <Rewards />;
-      default:
-        return <Dashboard />;
-    }
-  };
-
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-            <Header currentView={currentView} onViewChange={setCurrentView} />
-            <main className="container mx-auto px-4 py-8">
-              {renderCurrentView()}
-            </main>
-          </div>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #1e293b 0%, #7c3aed 50%, #1e293b 100%)',
+      color: 'white',
+      padding: '2rem',
+      fontFamily: 'Arial, sans-serif'
+    }}>
+      <h1 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '2rem' }}>
+        CloutX Dashboard - Basic Test
+      </h1>
+      
+      <div style={{ 
+        maxWidth: '600px', 
+        margin: '0 auto',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        padding: '2rem',
+        borderRadius: '10px',
+        textAlign: 'center'
+      }}>
+        <h2 style={{ marginBottom: '1rem' }}>System Check</h2>
+        <p style={{ marginBottom: '1rem' }}>✅ React is working!</p>
+        <p style={{ marginBottom: '1rem' }}>✅ Inline styles are working!</p>
+        <p style={{ marginBottom: '1rem' }}>✅ JavaScript is working!</p>
+        <p>Current time: {new Date().toLocaleTimeString()}</p>
+      </div>
+    </div>
   );
 }
 

@@ -35,11 +35,14 @@
     "ethers": "^5.7.2",
     "hardhat": "^2.19.1",
     "hardhat-gas-reporter": "^1.0.9",
+    "lodash-fp": "^0.10.4",
     "solidity-coverage": "^0.8.5"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
     "@openzeppelin/contracts": "^4.9.3",
-    "@openzeppelin/contracts-upgradeable": "^4.9.3"
+    "@openzeppelin/contracts-upgradeable": "^4.9.3",
+    "lodash": "^4.17.21",
+    "source-map-support": "^0.5.21"
   }
 }
